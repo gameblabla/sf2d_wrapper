@@ -22,10 +22,18 @@ typedef struct
 } touchPosition;
 
 
+#define u8 unsigned char
+#define s8 signed char
+#define u16 unsigned short
+#define s16 signed short
+#define s32 signed long
 #define u32 unsigned long
 #define u64 unsigned long long
+#define bool u8
+
 /// Creates a bitmask from a bit number.
 #define BIT(n) (1U<<(n))
+#define Result signed int
 
 enum
 {
@@ -62,12 +70,105 @@ enum
 
 void hidScanInput(void);
 u32 hidKeysDown(void);
-u64 osGetTime(void);
 void hidTouchRead(touchPosition* touch);
 
 void romfsInit();
 void romfsExit();
 
 int aptMainLoop();
+
+/* os specific functions*/
+
+u64 osGetTime(void);
+void osSetSpeedupEnable(bool enable);
+
+/* cfg stuff */
+Result cfguInit(void);
+Result CFGU_GetSystemModel(u8* model);
+void cfguExit(void);
+
+/*
+ * GPU stuff
+ * 
+*/
+
+#define GPU_NEVER 0
+#define GPU_STENCIL_REPLACE 0
+#define GPU_STENCIL_KEEP 0
+#define GPU_GREATER 0
+#define GPU_GEQUAL 0
+#define GPU_WRITE_ALL 0
+#define GPU_EQUAL 0
+#define GPU_ALWAYS 0
+#define GPU_STENCIL_KEEP 0
+
+
+Result GSPGPU_FlushDataCache(const void* adr, u32 size);
+int GPU_SetDepthTestAndWriteMask(int enable, int gpu_state, int stub1);
+int GPU_SetStencilTest(int enable, int gpu_state, int stub1, int stub2, int stub3);
+int GPU_SetAlphaTest(int enable, int gpu_state, int stub1);
+int GPU_SetStencilOp(int enable, int gpu_state, int stub1);
+
+/*
+ * Memory stuff 
+*/
+
+void linearFree(void* mem);
+void* linearAlloc(size_t size);
+void* linearMemAlign(size_t size, size_t alignment);
+void* linearRealloc(void* mem, size_t size);
+
+/*
+ * 
+ * Sound related stuff
+ * 
+*/
+Result csndPlaySound(int chn, u32 flags, u32 sampleRate, float vol, float pan, void* data0, void* data1, u32 size);
+void csndInit();
+void csndExit();
+void csndExecCmds(unsigned char enable);
+void CSND_SetPlayState(u32 channel, u32 value);
+
+
+/*
+ * This is directly taken from the header csnd.h
+*/
+
+/// Creates a sound channel value from a channel number.
+#define SOUND_CHANNEL(n) ((u32)(n) & 0x1F)
+
+/// Creates a sound format value from an encoding.
+#define SOUND_FORMAT(n) ((u32)(n) << 12)
+
+/// Creates a sound loop mode value from a loop mode.
+#define SOUND_LOOPMODE(n) ((u32)(n) << 10)
+
+enum
+{
+	CSND_ENCODING_PCM8 = 0, ///< PCM8
+	CSND_ENCODING_PCM16,    ///< PCM16
+	CSND_ENCODING_ADPCM,    ///< IMA-ADPCM
+	CSND_ENCODING_PSG,      ///< PSG (Similar to DS?)
+};
+
+enum
+{
+	CSND_LOOPMODE_MANUAL = 0, ///< Manual loop.
+	CSND_LOOPMODE_NORMAL,     ///< Normal loop.
+	CSND_LOOPMODE_ONESHOT,    ///< Do not loop.
+	CSND_LOOPMODE_NORELOAD,   ///< Don't reload.
+};
+
+enum
+{
+	SOUND_LINEAR_INTERP = BIT(6),                           ///< Linear interpolation.
+	SOUND_REPEAT = SOUND_LOOPMODE(CSND_LOOPMODE_NORMAL),    ///< Repeat the sound.
+	SOUND_ONE_SHOT = SOUND_LOOPMODE(CSND_LOOPMODE_ONESHOT), ///< Play the sound once.
+	SOUND_FORMAT_8BIT = SOUND_FORMAT(CSND_ENCODING_PCM8),   ///< PCM8
+	SOUND_FORMAT_16BIT = SOUND_FORMAT(CSND_ENCODING_PCM16), ///< PCM16
+	SOUND_FORMAT_ADPCM = SOUND_FORMAT(CSND_ENCODING_ADPCM), ///< ADPCM
+	SOUND_FORMAT_PSG = SOUND_FORMAT(CSND_ENCODING_PSG),     ///< PSG
+	SOUND_ENABLE = BIT(14),                                 ///< Enable sound.
+};
 
 #endif

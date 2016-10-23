@@ -119,6 +119,47 @@ static void replacestr(char *line, const char *search, const char *replace)
      memcpy(sp, replace, replace_len);
 }
 
+sf2d_texture *sf2d_create_texture(int width, int height, sf2d_texfmt pixel_format, int itdoesntmatter)
+{
+	SDL_Texture *texture;
+	unsigned long format;
+	
+	/*
+	 * SDL_PIXELFORMAT_ARGB4444
+	 * SDL_PIXELFORMAT_RGBA4444
+	 * SDL_PIXELFORMAT_ARGB8888
+	 * SDL_PIXELFORMAT_RGBA8888
+	 * SDL_PIXELFORMAT_RGB24
+	 * SDL_PIXELFORMAT_RGB565
+	 * SDL_PIXELFORMAT_BGR565
+	*/
+	
+	switch(pixel_format)
+	{
+		case TEXFMT_RGBA8:
+			format = SDL_PIXELFORMAT_ARGB8888;
+			//format = SDL_PIXELFORMAT_RGBA888;
+		break;
+		case TEXFMT_RGB8:
+			format = SDL_PIXELFORMAT_RGB24;
+		break;
+		case TEXFMT_RGB565:
+			format = SDL_PIXELFORMAT_RGB565;
+		break;
+		case TEXFMT_A4:
+			format = SDL_PIXELFORMAT_RGBA4444;
+		break;
+		default:
+			format = SDL_PIXELFORMAT_ARGB8888;
+			//format = SDL_PIXELFORMAT_RGBA888;
+		break;
+	}
+	texture = SDL_CreateTexture(renderer, format, SDL_TEXTUREACCESS_STREAMING, width, height);
+	
+	return texture;
+}
+
+
 sf2d_texture* sfil_load_PNG_file(const char* path, int somebullshitwedontcarefor)
 {
 	SDL_Surface* tmp;
@@ -251,6 +292,71 @@ void sf2d_draw_texture_part(sf2d_texture *texture, int x, int y, int tex_x, int 
 	SDL_RenderCopy(renderer, texture, &frame, &position);
 }
 
+void sf2d_draw_texture_part_scale(sf2d_texture *texture, float x, float y, float tex_x, float tex_y, float tex_w, float tex_h, float x_scale, float y_scale)
+{
+	int w, h;
+	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+
+	SDL_Rect position;
+	position.x = x + currentscreen_x;
+	position.y = y + currentscreen_y;
+	position.w = (float)(w * x_scale);
+	position.h = (float)(h * y_scale);
+	
+	SDL_Rect frame;
+	frame.x = tex_x;
+	frame.y = tex_y;
+	frame.w = tex_w;
+	frame.h = tex_h;
+	
+	SDL_RenderCopy(renderer, texture, &frame, &position);
+}
+
+void sf2d_draw_texture_part_rotate_scale(sf2d_texture *texture, int x, int y, float rad, int tex_x, int tex_y, int tex_w, int tex_h, float x_scale, float y_scale)
+{
+	int w, h;
+	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+
+	SDL_Point center;
+	center.x = 0;
+	center.y = 0;
+	SDL_Rect position;
+	position.x = x + currentscreen_x;
+	position.y = y + currentscreen_y;
+	position.w = (float)(w * x_scale);
+	position.h = (float)(h * y_scale);
+	
+	SDL_Rect frame;
+	frame.x = tex_x;
+	frame.y = tex_y;
+	frame.w = tex_w;
+	frame.h = tex_h;
+	
+	SDL_RenderCopyEx(renderer, texture, &frame, &position, rad, &center, SDL_FLIP_NONE);
+}
+
+void sf2d_draw_texture_part_scale_blend(sf2d_texture *texture, float x, float y, float tex_x, float tex_y, float tex_w, float tex_h, float x_scale, float y_scale, u32 color)
+{
+	int w, h;
+	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+
+	SDL_Rect position;
+	position.x = x + currentscreen_x;
+	position.y = y + currentscreen_y;
+	position.w = (float)(w * x_scale);
+	position.h = (float)(h * y_scale);
+	
+	SDL_Rect frame;
+	frame.x = tex_x;
+	frame.y = tex_y;
+	frame.w = tex_w;
+	frame.h = tex_h;
+	
+	SDL_SetTextureColorMod(texture, RGBA8_GET_R(color)-255, RGBA8_GET_G(color)-255, RGBA8_GET_B(color)-255);
+	SDL_RenderCopy(renderer, texture, &frame, &position);
+	SDL_SetTextureColorMod(texture, 255, 255, 255);
+}
+
 void sf2d_draw_texture_rotate_cut_scale(sf2d_texture *texture, int x, int y, float rad, int tex_x, int tex_y, int tex_w, int tex_h, float x_scale, float y_scale)
 {
 	int w, h;
@@ -280,15 +386,15 @@ void sf2d_draw_texture_blend(sf2d_texture *texture, int x, int y, u32 color)
 	int w, h;
 	SDL_Rect position;
 	
-	SDL_SetTextureColorMod(texture, RGBA8_GET_R(color)-255, RGBA8_GET_G(color)-255, RGBA8_GET_B(color)-255);
 	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
 
 	position.x = x + currentscreen_x;
 	position.y = y + currentscreen_y;
 	position.w = w;
 	position.h = h;
-	SDL_RenderCopy(renderer, texture, NULL, &position);
 	
+	SDL_SetTextureColorMod(texture, RGBA8_GET_R(color)-255, RGBA8_GET_G(color)-255, RGBA8_GET_B(color)-255);
+	SDL_RenderCopy(renderer, texture, NULL, &position);
 	SDL_SetTextureColorMod(texture, 255, 255, 255);
 }
 
@@ -419,6 +525,24 @@ void sf2d_draw_fill_circle(int rad, int x, int y, u32 color)
 }
 
 void sf2d_set_pixel (sf2d_texture *texture, int x, int y, u32 new_color)
+{
+	/* TODO : Needs to be optimised with SDL_LockTexture */
+	int w, h;
+	Uint32 *pixels;
+	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+	pixels = malloc(w*h);
+	pixels[y * w + x] = new_color;
+	SDL_UpdateTexture(texture, NULL, pixels, w * sizeof(Uint32));
+}
+
+u32 sf2d_get_pixel(sf2d_texture *texture, int x, int y)
+{
+	/* FIXME : TODO */
+	/*SDL_SetRenderTarget(renderer, target);
+	SDL_RenderReadPixels(renderer, rect, format, pixels, pitch);*/
+}
+
+void sf2d_texture_tile32(sf2d_texture *texture)
 {
 }
 

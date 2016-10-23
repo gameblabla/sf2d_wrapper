@@ -1,0 +1,2 @@
+- Make it so the two screens are seperate textures/surfaces like in the SDL 1.2 version
+- In sf2d, you can get the size of the texture in its structure. (For example, texture->w) This isn't supported by SDL2 however

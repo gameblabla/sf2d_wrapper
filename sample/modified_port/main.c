@@ -35,30 +35,33 @@ u32 size;
 
 // Audio functions (load audio)
 void audio_load(const char *audio){
-   /* FILE *file = fopen(audio, "rb");
-    fseek(file, 0, SEEK_END);// seek to end of file
-    off_t size = ftell(file);// file pointer tells us the size
-    fseek(file, 0, SEEK_SET);// seek back to start
-    buffer = linearAlloc(size);//allocate a buffer
-    off_t bytesRead = fread(buffer, 1, size, file);//read contents!
-    fclose(file);//close the file because we like being nice and tidy
-    csndPlaySound(8, SOUND_FORMAT_16BIT | SOUND_REPEAT, 44100, 1, 0, buffer, buffer, size);
-    linearFree(buffer);/*
+	FILE *file = fopen(audio, "rb");
+	if (file)
+	{
+		fseek(file, 0, SEEK_END);// seek to end of file
+		off_t size = ftell(file);// file pointer tells us the size
+		fseek(file, 0, SEEK_SET);// seek back to start
+		buffer = linearAlloc(size);//allocate a buffer
+		off_t bytesRead = fread(buffer, 1, size, file);//read contents!
+		fclose(file);//close the file because we like being nice and tidy
+		csndPlaySound(8, SOUND_FORMAT_16BIT | SOUND_REPEAT, 44100, 1, 0, buffer, buffer, size);
+		linearFree(buffer);
+	}
 }
 
 // Audio functions (stop audio)
 void audio_stop(void){
-    /*csndExecCmds(true);
+    csndExecCmds(true);
     CSND_SetPlayState(0x8, 0);
     memset(buffer, 0, size);
     GSPGPU_FlushDataCache(buffer, size);
-    linearFree(buffer);*/
+    linearFree(buffer);
 }
 	
 void exitServices() {
-	/*audio_stop();
 	audio_stop();
-	csndExit();*/
+	audio_stop();
+	csndExit();
 	GUIElementsExit();
 	romfsExit();
 	sftd_fini();
@@ -72,7 +75,7 @@ void initServices() {
 	sftd_init();
 	romfsInit();
 	GUIElementsInit();
-	/*csndInit();*/
+	csndInit();
 	srand(osGetTime());
 }
 
@@ -126,11 +129,16 @@ bool waitXseconds (int seconds) { //return true after x seconds passed
 int main() {
 	initServices();
 	//Audio load
-	/*FILE *fp = fopen ("sdmc:/3ds/data/Memory3DS/music.raw", "r");
-	if (fp!=NULL) {
+	FILE *fp = fopen ("sdmc:/3ds/data/Memory3DS/music.raw", "r");
+	if (fp) 
+	{
 		fclose (fp);
-		audio_load("sdmc:/3ds/data/Memory3DS/music.raw");}
-	else {audio_load("romfs:/music.raw");}*/
+		audio_load("sdmc:/3ds/data/Memory3DS/music.raw");
+	}
+	else 
+	{
+		audio_load("./romfs/music.raw");
+	}
 	
 	RandomizationOfThetabAnwser();
 	totalsecondsatstart = CalculateCurrentTotalSeconds();

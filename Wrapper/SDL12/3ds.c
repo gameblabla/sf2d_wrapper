@@ -1,4 +1,4 @@
-/*
+//*
 
 The MIT License (MIT)
 
@@ -13,6 +13,7 @@ and to permit persons to whom the Software is furnished to do so, subject to the
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <3ds.h>
 #include <time.h>
 #include <sys/time.h>
@@ -35,6 +36,86 @@ void romfsExit()
 {
 }
 
+/* cfg, 3ds-specific again (not very useful) */
+Result cfguInit(void)
+{
+	return 1;
+}
+
+Result CFGU_GetSystemModel(u8* model)
+{
+	return 1;
+}
+
+void cfguExit(void)
+{
+}
+
+/* Sound stuff */
+Result csndPlaySound(int chn, u32 flags, u32 sampleRate, float vol, float pan, void* data0, void* data1, u32 size)
+{	
+}
+
+void csndInit()
+{
+	
+}
+
+void csndExit()
+{
+	
+}
+
+void csndExecCmds(unsigned char enable)
+{
+}
+
+void CSND_SetPlayState(u32 channel, u32 value)
+{
+}
+
+Result GSPGPU_FlushDataCache(const void* adr, u32 size)
+{
+}
+
+/* The old GPU Api, still used by some old 3DS homebrew games apparently */
+
+int GPU_SetDepthTestAndWriteMask(int enable, int gpu_state, int stub1)
+{
+}
+
+int GPU_SetStencilTest(int enable, int gpu_state, int stub1, int stub2, int stub3)
+{
+}
+
+int GPU_SetAlphaTest(int enable, int gpu_state, int stub1)
+{
+}
+
+int GPU_SetStencilOp(int enable, int gpu_state, int stub1)
+{
+}
+
+void linearFree(void* mem)
+{
+	if (mem) free(mem);
+}
+
+void* linearAlloc(size_t size)
+{
+	return linearMemAlign(size, 0x80);
+}
+
+void* linearMemAlign(size_t size, size_t alignment)
+{
+	return aligned_alloc(alignment, size);
+}
+
+/* According to libctru, this isn't actually implemented yet as for 2016 */
+void* linearRealloc(void* mem, size_t size)
+{
+	return NULL;
+}
 
 int aptMainLoop()
 {
@@ -61,6 +142,10 @@ u64 osGetTime(void)
 	return time(0)*1000;
 }
 
+void osSetSpeedupEnable(bool enable)
+{
+	/* Only useful on 3DS */
+}
 
 void hidTouchRead(touchPosition* pos)
 {
@@ -129,6 +214,26 @@ void hidTouchRead(touchPosition* pos)
 						kHeld |= KEY_B;
 						kUp &= KEY_B;
 					break;
+					case SDLK_LSHIFT: 
+						kDown |= KEY_X;
+						kHeld |= KEY_X;
+						kUp &= KEY_X;
+					break;
+					case SDLK_SPACE: 
+						kDown |= KEY_Y;
+						kHeld |= KEY_Y;
+						kUp &= KEY_Y;
+					break;
+					case SDLK_TAB: 
+						kDown |= KEY_L;
+						kHeld |= KEY_L;
+						kUp &= KEY_L;
+					break;
+					case SDLK_BACKSPACE: 
+						kDown |= KEY_R;
+						kHeld |= KEY_R;
+						kUp &= KEY_R;
+					break;
 					case SDLK_ESCAPE: 
 						kDown |= KEY_SELECT;
 						kHeld |= KEY_SELECT;
@@ -165,24 +270,44 @@ void hidTouchRead(touchPosition* pos)
 						kUp |= KEY_RIGHT;
 					break;	
 					case SDLK_LCTRL: 
-							kDown &= KEY_A;
-							kHeld &= KEY_A;
-							kUp |= KEY_A;
+						kDown &= KEY_A;
+						kHeld &= KEY_A;
+						kUp |= KEY_A;
 					break;
 					case SDLK_LALT: 
-							kDown &= KEY_B;
-							kHeld &= KEY_B;
-							kUp |= KEY_B;
+						kDown &= KEY_B;
+						kHeld &= KEY_B;
+						kUp |= KEY_B;
+					break;
+					case SDLK_LSHIFT: 
+						kDown &= KEY_X;
+						kHeld &= KEY_X;
+						kUp |= KEY_X;
+					break;
+					case SDLK_SPACE: 
+						kDown &= KEY_Y;
+						kHeld &= KEY_Y;
+						kUp |= KEY_Y;
+					break;
+					case SDLK_TAB: 
+						kDown &= KEY_L;
+						kHeld &= KEY_L;
+						kUp |= KEY_L;
+					break;
+					case SDLK_BACKSPACE: 
+						kDown &= KEY_R;
+						kHeld &= KEY_R;
+						kUp |= KEY_R;
 					break;
 					case SDLK_ESCAPE: 
-							kDown &= KEY_SELECT;
-							kHeld &= KEY_SELECT;
-							kUp |= KEY_SELECT;
+						kDown &= KEY_SELECT;
+						kHeld &= KEY_SELECT;
+						kUp |= KEY_SELECT;
 					break;
 					case SDLK_RETURN: 
-							kDown &= KEY_START;
-							kHeld &= KEY_START;
-							kUp |= KEY_START;
+						kDown &= KEY_START;
+						kHeld &= KEY_START;
+						kUp |= KEY_START;
 					break;
 				}
 			break;

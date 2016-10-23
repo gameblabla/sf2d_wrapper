@@ -26,7 +26,9 @@ and to permit persons to whom the Software is furnished to do so, subject to the
 #define u8 unsigned char
 #define u32 unsigned long
 #define u64 unsigned long long
-#define bool unsigned char
+#ifndef bool
+#define bool u8
+#endif
 #define true 1
 #define false 0
 
@@ -53,13 +55,22 @@ and to permit persons to whom the Software is furnished to do so, subject to the
 #define SF2D_TEMPPOOL_DEFAULT_SIZE   0x80000
 #define SF2D_DEFAULT_DEPTH   0.5f
 
-enum sf2d_texfmt 
-{
-  TEXFMT_RGBA8 = 0, TEXFMT_RGB8 = 1, TEXFMT_RGB5A1 = 2, TEXFMT_RGB565 = 3,
-  TEXFMT_RGBA4 = 4, TEXFMT_IA8 = 5, TEXFMT_I8 = 7, TEXFMT_A8 = 8,
-  TEXFMT_IA4 = 9, TEXFMT_I4 = 10, TEXFMT_A4 = 11, TEXFMT_ETC1 = 12,
-  TEXFMT_ETC1A4 = 13
-};
+typedef enum {
+	TEXFMT_RGBA8  =  0,
+	TEXFMT_RGB8   =  1,
+	TEXFMT_RGB5A1 =  2,
+	TEXFMT_RGB565 =  3,
+	TEXFMT_RGBA4  =  4,
+	TEXFMT_IA8    =  5,
+
+	TEXFMT_I8     =  7,
+	TEXFMT_A8     =  8,
+	TEXFMT_IA4    =  9,
+	TEXFMT_I4     = 10,
+	TEXFMT_A4     = 11,
+	TEXFMT_ETC1   = 12,
+	TEXFMT_ETC1A4 = 13
+} sf2d_texfmt;
 
 int sf2d_init();
 int sf2d_init_advanced(int gpucmd_size, int temppool_size);
@@ -79,11 +90,17 @@ void sf2d_draw_texture(sf2d_texture *yourmom, int x, int y);
 void sf2d_draw_texture_rotate(sf2d_texture *texture, int x, int y, float rad);
 void sf2d_draw_texture_scale(sf2d_texture *texture, int x, int y, float x_scale, float y_scale);
 void sf2d_draw_texture_part(sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h);
+void sf2d_draw_texture_part_scale(sf2d_texture *texture, float x, float y, float tex_x, float tex_y, float tex_w, float tex_h, float x_scale, float y_scale);
+void sf2d_draw_texture_part_rotate_scale(sf2d_texture *texture, int x, int y, float rad, int tex_x, int tex_y, int tex_w, int tex_h, float x_scale, float y_scale);
+void sf2d_draw_texture_part_scale_blend(sf2d_texture *texture, float x, float y, float tex_x, float tex_y, float tex_w, float tex_h, float x_scale, float y_scale, u32 color);
 void sf2d_draw_texture_rotate_cut_scale(sf2d_texture *texture, int x, int y, float rad, int tex_x, int tex_y, int tex_w, int tex_h, float x_scale, float y_scale);
 void sf2d_draw_texture_blend(sf2d_texture *texture, int x, int y, u32 color);
 void sf2d_draw_texture_part_blend(sf2d_texture *texture, int x, int y, int tex_x, int tex_y, int tex_w, int tex_h, u32 color);
 void sf2d_draw_texture_depth (sf2d_texture *texture, int x, int y, signed short z);
 
+void sf2d_set_pixel (sf2d_texture *texture, int x, int y, u32 new_color);
+u32 sf2d_get_pixel(sf2d_texture *texture, int x, int y);
+void sf2d_texture_tile32(sf2d_texture *texture);
 void sf2d_free_texture(sf2d_texture *texture);
 void sf2d_swapbuffers();
 
