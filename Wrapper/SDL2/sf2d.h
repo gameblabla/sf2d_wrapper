@@ -118,6 +118,8 @@ void sf2d_pool_reset();
 
 float sf2d_get_fps();
 
+void sf2d_texture_set_params(sf2d_texture* texture, int flags);
+
 /*
  * sftd functions for text drawing 
 */

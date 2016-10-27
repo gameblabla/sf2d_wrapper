@@ -335,8 +335,8 @@ void sf2d_draw_texture_part(sf2d_texture *texture, int x, int y, int tex_x, int 
 	SDL_Rect position;
 	position.x = x;
 	position.y = y;
-	position.w = w;
-	position.h = h;
+	position.w = tex_w;
+	position.h = tex_h;
 	
 	SDL_Rect frame;
 	frame.x = tex_x;
@@ -355,8 +355,8 @@ void sf2d_draw_texture_part_scale(sf2d_texture *texture, float x, float y, float
 	SDL_Rect position;
 	position.x = x;
 	position.y = y;
-	position.w = (float)(w * x_scale);
-	position.h = (float)(h * y_scale);
+	position.w = (float)(tex_w * x_scale);
+	position.h = (float)(tex_h * y_scale);
 	
 	SDL_Rect frame;
 	frame.x = tex_x;
@@ -378,8 +378,8 @@ void sf2d_draw_texture_part_rotate_scale(sf2d_texture *texture, int x, int y, fl
 	SDL_Rect position;
 	position.x = x;
 	position.y = y;
-	position.w = (float)(w * x_scale);
-	position.h = (float)(h * y_scale);
+	position.w = (float)(tex_w * x_scale);
+	position.h = (float)(tex_h * y_scale);
 	
 	SDL_Rect frame;
 	frame.x = tex_x;
@@ -398,8 +398,8 @@ void sf2d_draw_texture_part_scale_blend(sf2d_texture *texture, float x, float y,
 	SDL_Rect position;
 	position.x = x;
 	position.y = y;
-	position.w = (float)(w * x_scale);
-	position.h = (float)(h * y_scale);
+	position.w = (float)(tex_w * x_scale);
+	position.h = (float)(tex_h * y_scale);
 	
 	SDL_Rect frame;
 	frame.x = tex_x;
@@ -424,8 +424,8 @@ void sf2d_draw_texture_rotate_cut_scale(sf2d_texture *texture, int x, int y, flo
 	SDL_Rect position;
 	position.x = x;
 	position.y = y;
-	position.w = (float)(w * x_scale);
-	position.h = (float)(h * y_scale);
+	position.w = (float)(tex_w * x_scale);
+	position.h = (float)(tex_h * y_scale);
 	
 	SDL_Rect frame;
 	frame.x = tex_x;
@@ -463,8 +463,8 @@ void sf2d_draw_texture_part_blend(sf2d_texture *texture, int x, int y, int tex_x
 
 	position.x = x;
 	position.y = y;
-	position.w = w;
-	position.h = h;
+	position.w = tex_w;
+	position.h = tex_h;
 	
 	frame.x = tex_x;
 	frame.y = tex_y;
@@ -646,6 +646,10 @@ void sf2d_set_3D(u8 enable)
 float sf2d_get_fps ()
 {
 	return 60.0f;
+}
+
+void sf2d_texture_set_params(sf2d_texture* texture, int flags)
+{
 }
 
 // Grabbed from Citra Emulator (citra/src/video_core/utils.h)
