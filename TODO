@@ -1,2 +1,6 @@
-- Make it so the two screens are seperate textures/surfaces like in the SDL 1.2 version
 - In sf2d, you can get the size of the texture in its structure. (For example, texture->w) This isn't supported by SDL2 however
+I guess the only to do that is to make a custom struct for sf2d textures instead and hold the SDL2's texture inside the structure.
+
+- Support for tiled textures, rotated rectangles, Circle Pad support, loading C-arrays images...
+
+- Make it so you can change the text size if it changed.

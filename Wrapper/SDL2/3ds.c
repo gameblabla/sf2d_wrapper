@@ -20,12 +20,29 @@ and to permit persons to whom the Software is furnished to do so, subject to the
 
 static u32 kHeld = 0, kDown = 0, kUp = 0;
 
+static u8 noinput_counter = 0;
+
 int hidInit(void)
 {
 }
 
 void hidScanInput(void)
 {
+	/* 
+	 * noinput_counter is kind of hack :
+	 * Some games use only hidTouchRead and some only hidScanInput.
+	 * If hidScanInput is called several times but hidTouchRead (the main input function) is never called,
+	 * it will call hidTouchRead itself instead.
+	*/
+	touchPosition pos;
+	if (noinput_counter > 1)
+	{
+		hidTouchRead(&pos);
+	}
+	else
+	{
+		noinput_counter++;
+	}
 }
 
 void romfsInit()
@@ -153,6 +170,8 @@ void hidTouchRead(touchPosition* pos)
 {
 	touchPosition touch;
 	SDL_Event event;
+	
+	noinput_counter = 0;
 	
 	touch.px = 0;
 	touch.py = 0;
