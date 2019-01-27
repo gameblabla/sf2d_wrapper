@@ -18,7 +18,8 @@ Some functions were also taken in part or directly from ctruilib and sf2dlib :
 
 crtuilib has no license (i assume public domain ?) and sf2dlib is under the MIT license, copyright Sergi Granell (xerpi).
 
-================
+**Updates** It looks like sf2d got deprecated in favor of crtui3D. As a result, this thing is pretty much useless now. Besides, it's not like people released the source code to their 3DS homebrew games...
+
 Known Issues
 ================
 Pray so that your games in question does not use low-level GPU functions or else it will not work properly.
